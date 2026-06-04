@@ -3,7 +3,8 @@ name: Exchange Rate Scraper
 on:
   schedule:
     # Corre cada día a las 9:00 AM hora Santo Domingo (UTC-4 → 13:00 UTC)
-    - cron: "0 13 * * *"
+    # - cron: "0 13 * * *"
+    - cron: "*/5 * * * *"
     # Si quieres también en la tarde (ej: 4:00 PM AST → 20:00 UTC):
     # - cron: "0 20 * * *"
 
