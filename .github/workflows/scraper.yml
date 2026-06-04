@@ -11,9 +11,19 @@ on:
   workflow_dispatch:
     inputs:
       bank:
-        description: "Banco específico (dejar vacío para todos)"
+        description: "Banco a ejecutar"
+        required: true
+        type: choice
+        default: "ALL"
+        options:
+          - "ALL"
+          - "BHD"
+          - "BANRESERVAS"
+      no_telegram:
+        description: "No enviar notificaciones Telegram"
         required: false
-        default: ""
+        type: boolean
+        default: false
 
 jobs:
   scrape:
@@ -43,15 +53,28 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           BANK="${{ github.event.inputs.bank }}"
-          if [ -n "$BANK" ]; then
-            python main.py --bank "$BANK"
-          else
-            python main.py
+          NO_TELEGRAM="${{ github.event.inputs.no_telegram }}"
+
+          if [ -z "$BANK" ]; then
+            BANK="ALL"
           fi
 
+          args=()
+          if [ "$BANK" != "ALL" ]; then
+            args+=(--bank "$BANK")
+          fi
+          if [ "$NO_TELEGRAM" = "true" ]; then
+            args+=(--no-telegram)
+          fi
+
+          python main.py "${args[@]}"
+
       - name: Notificar fallo en Actions
-        if: failure()
+        if: failure() && github.event.inputs.no_telegram != 'true'
         env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_EMAIL: ${{ secrets.API_EMAIL }}
+          API_PASSWORD: ${{ secrets.API_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |

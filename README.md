@@ -26,7 +26,9 @@ exchange-scraper/
 
 ## Configurar GitHub Secrets
 
-En tu repo: **Settings → Secrets → Actions → New repository secret**
+En tu repo entra a **Settings → Secrets and variables → Actions → New repository secret**.
+
+Crea estos secrets uno por uno:
 
 | Secret | Descripción |
 |--------|-------------|
@@ -35,6 +37,33 @@ En tu repo: **Settings → Secrets → Actions → New repository secret**
 | `API_PASSWORD` | Password para `POST /auth/login` |
 | `TELEGRAM_BOT_TOKEN` | Opcional. Token del bot (obtener con @BotFather) |
 | `TELEGRAM_CHAT_ID` | Opcional. ID del chat/grupo donde llegan las notificaciones |
+
+Valores mínimos requeridos:
+
+```env
+API_BASE_URL=https://currency-rates.fastapicloud.dev
+API_EMAIL=tu_email
+API_PASSWORD=tu_password
+```
+
+Telegram es opcional. Si no configuras `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID`, el scraper corre igual sin enviar notificaciones.
+
+## Ejecutar En GitHub Actions
+
+Para correrlo manualmente:
+
+1. Entra al repositorio en GitHub.
+2. Ve a **Actions**.
+3. Selecciona **Exchange Rate Scraper**.
+4. Haz clic en **Run workflow**.
+5. En `bank`, selecciona `ALL` para correr todos los bancos activos.
+6. Si quieres correr solo uno, selecciona `BHD` o `BANRESERVAS`.
+7. Marca `no_telegram` si no quieres enviar notificaciones.
+8. Haz clic en **Run workflow**.
+
+El workflow también corre automáticamente todos los días a las 9:00 AM hora Santo Domingo.
+
+`ALL` ejecuta los bancos activos en `scrapers/__init__.py`. Actualmente están activos `BHD` y `BANRESERVAS`.
 
 ## Crear el bot de Telegram
 
