@@ -34,7 +34,7 @@ jobs:
   scrape:
     name: Scrape Exchange Rates
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
 
     steps:
       - name: Checkout código
