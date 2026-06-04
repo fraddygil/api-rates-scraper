@@ -1,98 +1,85 @@
-name: Test Schedule
+name: Exchange Rate Scraper
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    # Corre cada día a las 9:00 AM hora Santo Domingo (UTC-4 → 13:00 UTC)
+    # - cron: "0 13 * * *"
+    # - cron: "*/30 * * * *"
+    # Si quieres también en la tarde (ej: 4:00 PM AST → 20:00 UTC):
+    - cron: "0 */6 * * *"
+
+  # Permite correrlo manualmente desde GitHub
   workflow_dispatch:
+    inputs:
+      bank:
+        description: "Banco a ejecutar"
+        required: true
+        type: choice
+        default: "ALL"
+        options:
+          - "ALL"
+          - "BHD"
+          - "BANRESERVAS"
+      no_telegram:
+        description: "No enviar notificaciones Telegram"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
-  test:
+  scrape:
+    name: Scrape Exchange Rates
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
-      - run: date
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-# name: Exchange Rate Scraper
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
 
-# on:
-#   schedule:
-#     # Corre cada día a las 9:00 AM hora Santo Domingo (UTC-4 → 13:00 UTC)
-#     # - cron: "0 13 * * *"
-#     - cron: "*/30 * * * *"
-#     # Si quieres también en la tarde (ej: 4:00 PM AST → 20:00 UTC):
-#     # - cron: "0 20 * * *"
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
 
-#   # Permite correrlo manualmente desde GitHub
-#   workflow_dispatch:
-#     inputs:
-#       bank:
-#         description: "Banco a ejecutar"
-#         required: true
-#         type: choice
-#         default: "ALL"
-#         options:
-#           - "ALL"
-#           - "BHD"
-#           - "BANRESERVAS"
-#       no_telegram:
-#         description: "No enviar notificaciones Telegram"
-#         required: false
-#         type: boolean
-#         default: false
+      - name: Correr scraper
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_EMAIL: ${{ secrets.API_EMAIL }}
+          API_PASSWORD: ${{ secrets.API_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          BANK="${{ github.event.inputs.bank }}"
+          NO_TELEGRAM="${{ github.event.inputs.no_telegram }}"
 
-# jobs:
-#   scrape:
-#     name: Scrape Exchange Rates
-#     runs-on: ubuntu-latest
-#     timeout-minutes: 15
+          if [ -z "$BANK" ]; then
+            BANK="ALL"
+          fi
 
-#     steps:
-#       - name: Checkout código
-#         uses: actions/checkout@v4
+          args=()
+          if [ "$BANK" != "ALL" ]; then
+            args+=(--bank "$BANK")
+          fi
+          if [ "$NO_TELEGRAM" = "true" ]; then
+            args+=(--no-telegram)
+          fi
 
-#       - name: Setup Python 3.11
-#         uses: actions/setup-python@v5
-#         with:
-#           python-version: "3.11"
-#           cache: "pip"
+          python main.py "${args[@]}"
 
-#       - name: Instalar dependencias
-#         run: pip install -r requirements.txt
-
-#       - name: Correr scraper
-#         env:
-#           API_BASE_URL: ${{ secrets.API_BASE_URL }}
-#           API_EMAIL: ${{ secrets.API_EMAIL }}
-#           API_PASSWORD: ${{ secrets.API_PASSWORD }}
-#           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-#           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-#         run: |
-#           BANK="${{ github.event.inputs.bank }}"
-#           NO_TELEGRAM="${{ github.event.inputs.no_telegram }}"
-
-#           if [ -z "$BANK" ]; then
-#             BANK="ALL"
-#           fi
-
-#           args=()
-#           if [ "$BANK" != "ALL" ]; then
-#             args+=(--bank "$BANK")
-#           fi
-#           if [ "$NO_TELEGRAM" = "true" ]; then
-#             args+=(--no-telegram)
-#           fi
-
-#           python main.py "${args[@]}"
-
-#       - name: Notificar fallo en Actions
-#         if: failure() && github.event.inputs.no_telegram != 'true'
-#         env:
-#           API_BASE_URL: ${{ secrets.API_BASE_URL }}
-#           API_EMAIL: ${{ secrets.API_EMAIL }}
-#           API_PASSWORD: ${{ secrets.API_PASSWORD }}
-#           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-#           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-#         run: |
-#           python -c "
-#           from core.telegram import _send
-#           _send('🔴 <b>GitHub Actions falló</b>\nEl workflow de exchange rates terminó con error. Revisar logs.')
-#           "
+      - name: Notificar fallo en Actions
+        if: failure() && github.event.inputs.no_telegram != 'true'
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_EMAIL: ${{ secrets.API_EMAIL }}
+          API_PASSWORD: ${{ secrets.API_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -c "
+          from core.telegram import _send
+          _send('🔴 <b>GitHub Actions falló</b>\nEl workflow de exchange rates terminó con error. Revisar logs.')
+          "
