@@ -1,0 +1,61 @@
+name: Exchange Rate Scraper
+
+on:
+  schedule:
+    # Corre cada día a las 9:00 AM hora Santo Domingo (UTC-4 → 13:00 UTC)
+    - cron: "0 13 * * *"
+    # Si quieres también en la tarde (ej: 4:00 PM AST → 20:00 UTC):
+    # - cron: "0 20 * * *"
+
+  # Permite correrlo manualmente desde GitHub
+  workflow_dispatch:
+    inputs:
+      bank:
+        description: "Banco específico (dejar vacío para todos)"
+        required: false
+        default: ""
+
+jobs:
+  scrape:
+    name: Scrape Exchange Rates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Correr scraper
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          API_EMAIL: ${{ secrets.API_EMAIL }}
+          API_PASSWORD: ${{ secrets.API_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          BANK="${{ github.event.inputs.bank }}"
+          if [ -n "$BANK" ]; then
+            python main.py --bank "$BANK"
+          else
+            python main.py
+          fi
+
+      - name: Notificar fallo en Actions
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -c "
+          from core.telegram import _send
+          _send('🔴 <b>GitHub Actions falló</b>\nEl workflow de exchange rates terminó con error. Revisar logs.')
+          "
