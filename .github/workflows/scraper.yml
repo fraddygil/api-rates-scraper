@@ -23,6 +23,10 @@ on:
           - "ALL"
           - "BHD"
           - "BANRESERVAS"
+          - "APAP"
+          - "BANCOCENTRAL"
+          - "QIK"
+          - "SCOTIABANK"
       no_telegram:
         description: "No enviar notificaciones Telegram"
         required: false
