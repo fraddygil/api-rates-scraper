@@ -9,6 +9,7 @@ from importlib import import_module
 SCRAPER_REGISTRY = {
     "BHD": ("scrapers.bhd", "BHDScraper"),
     "BANRESERVAS": ("scrapers.banreservas", "BanreservasScraper"),
+    "APAP": ("scrapers.apap", "APAPScraper"),
     # "POPULAR": ("scrapers.popular", "PopularScraper"),
     # "SCOTIABANK": ("scrapers.scotiabank", "ScotiabankScraper"),
 }
