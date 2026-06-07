@@ -11,8 +11,9 @@ SCRAPER_REGISTRY = {
     "BANRESERVAS": ("scrapers.banreservas", "BanreservasScraper"),
     "APAP": ("scrapers.apap", "APAPScraper"),
     "BANCOCENTRAL": ("scrapers.bancentral", "BancoCentralScraper"),
+    "QIK": ("scrapers.qik", "QikScraper"),
+    "SCOTIABANK": ("scrapers.scotiabank", "ScotiabankScraper"),
     # "POPULAR": ("scrapers.popular", "PopularScraper"),
-    # "SCOTIABANK": ("scrapers.scotiabank", "ScotiabankScraper"),
 }
 
 
