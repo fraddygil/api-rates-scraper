@@ -10,6 +10,7 @@ SCRAPER_REGISTRY = {
     "BHD": ("scrapers.bhd", "BHDScraper"),
     "BANRESERVAS": ("scrapers.banreservas", "BanreservasScraper"),
     "APAP": ("scrapers.apap", "APAPScraper"),
+    "BANCOCENTRAL": ("scrapers.bancentral", "BancoCentralScraper"),
     # "POPULAR": ("scrapers.popular", "PopularScraper"),
     # "SCOTIABANK": ("scrapers.scotiabank", "ScotiabankScraper"),
 }
