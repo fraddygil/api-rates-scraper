@@ -27,6 +27,8 @@ on:
           - "BANCOCENTRAL"
           - "QIK"
           - "SCOTIABANK"
+          - "PROMERICA"
+          - "BANESCO"
       no_telegram:
         description: "No enviar notificaciones Telegram"
         required: false

@@ -13,6 +13,8 @@ SCRAPER_REGISTRY = {
     "BANCOCENTRAL": ("scrapers.bancentral", "BancoCentralScraper"),
     "QIK": ("scrapers.qik", "QikScraper"),
     "SCOTIABANK": ("scrapers.scotiabank", "ScotiabankScraper"),
+    "PROMERICA": ("scrapers.promerica", "PromericaScraper"),
+    "BANESCO": ("scrapers.banesco", "BanescoScraper"),
     # "POPULAR": ("scrapers.popular", "PopularScraper"),
 }
 
