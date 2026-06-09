@@ -32,6 +32,7 @@ on:
           - "BANCOCARIBE"
           - "BDI"
           - "VIMENCA"
+          - "LAFISE"
       no_telegram:
         description: "No enviar notificaciones Telegram"
         required: false
