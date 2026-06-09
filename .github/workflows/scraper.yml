@@ -29,6 +29,8 @@ on:
           - "SCOTIABANK"
           - "PROMERICA"
           - "BANESCO"
+          - "BANCOCARIBE"
+          - "BDI"
       no_telegram:
         description: "No enviar notificaciones Telegram"
         required: false
