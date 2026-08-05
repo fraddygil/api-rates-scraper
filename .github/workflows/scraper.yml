@@ -9,7 +9,7 @@ on:
     # - cron: "0 13 * * *"
     # - cron: "*/30 * * * *"
     # Si quieres también en la tarde (ej: 4:00 PM AST → 20:00 UTC):
-    - cron: "0 */4 * * *"
+    - cron: "0 */9 * * *"
 
   # Permite correrlo manualmente desde GitHub
   workflow_dispatch:
